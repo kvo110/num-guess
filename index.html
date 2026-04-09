@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Homework 4 | Number Guessing Game</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <main class="page">
+    <section class="game-panel">
+      <h1>Number Guessing Game</h1>
+      <p class="intro">
+        Guess a number between 1 and 100.
+      </p>
+
+      <div class="top-bar">
+        <div class="info-box">
+          <span class="label">Clock</span>
+          <span id="clock">00:00:00</span>
+        </div>
+
+        <div class="info-box sound-box">
+          <span class="label">Sound</span>
+          <button id="soundToggle" type="button">On</button>
+        </div>
+      </div>
+
+      <div class="guess-row">
+        <input type="number" id="guessInput" min="1" max="100" placeholder="Enter your guess..." />
+        <button id="guessButton" type="button">Guess</button>
+      </div>
+
+      <div id="message" class="message">
+        Take a guess to begin.
+      </div>
+
+      <div class="stats">
+        <div class="stat-card">
+          <span class="stat-label">Guesses Left</span>
+          <span id="guessesLeft">10</span>
+        </div>
+
+        <div class="stat-card">
+          <span class="stat-label">Wins</span>
+          <span id="winsCount">0</span>
+        </div>
+
+        <div class="stat-card">
+          <span class="stat-label">Rounds</span>
+          <span id="roundCount">0</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="number-game.js"></script>
+</body>
+
+</html>
