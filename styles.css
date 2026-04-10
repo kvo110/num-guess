@@ -8,8 +8,9 @@ body {
 .page {
   min-height: 100vh;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 28px;
   padding: 40px 20px;
   box-sizing: border-box;
 }
@@ -17,6 +18,7 @@ body {
 .game-panel {
   width: 100%;
   max-width: 900px;
+  margin: 0 auto;
   background: #ffffff;
   border: 1px solid #ecd7e5;
   border-radius: 18px;
@@ -130,10 +132,88 @@ h1 {
   color: #c2187a;
 }
 
+.memory-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 16px;
+  align-items: end;
+  margin-bottom: 20px;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.control-group label {
+  font-weight: bold;
+}
+
+.control-group select {
+  padding: 14px;
+  border: 1px solid #edd7e7;
+  border-radius: 12px;
+  font-size: 1rem;
+  background: #ffffff;
+}
+
+.memory-controls button {
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #e91e63, #9c27b0);
+  color: #ffffff;
+  padding: 14px 26px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.memory-status-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.memory-board {
+  display: grid;
+  gap: 12px;
+}
+
+.memory-card {
+  height: 90px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #e91e63, #9c27b0);
+  color: #ffffff;
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(156, 39, 176, 0.15);
+}
+
+.memory-card.revealed,
+.memory-card.matched {
+  background: #fff4fa;
+  color: #7a2052;
+  border: 1px solid #efcfe1;
+}
+
+.memory-card:disabled {
+  cursor: default;
+}
+
 @media (max-width: 700px) {
 
   .top-bar,
-  .stats {
+  .stats,
+  .memory-status-row {
+    grid-template-columns: 1fr;
+  }
+
+  .guess-row,
+  .memory-controls {
     grid-template-columns: 1fr;
   }
 
@@ -141,7 +221,8 @@ h1 {
     flex-direction: column;
   }
 
-  .guess-row button {
+  .guess-row button,
+  .memory-controls button {
     padding: 16px;
   }
 }
