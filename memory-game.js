@@ -69,7 +69,7 @@ let gameTimer = null;
 let canFlipCards = false;
 let currentScore = 0;
 let roundTimeLimit = 0;
-let finishPenalty = 0;
+let overtimeSeconds = 0;
 
 // Start game button begins a new round
 startMemoryGameButton.addEventListener('click', startMemoryGame);
@@ -91,7 +91,7 @@ function startMemoryGame() {
   matchesFound = 0;
   wrongAttempts = 0;
   currentScore = 0;
-  finishPenalty = 0;
+  overtimeSeconds = 0;
   firstCard = null;
   secondCard = null;
   lockBoard = false;
@@ -105,7 +105,7 @@ function startMemoryGame() {
   matchCountText.textContent = matchesFound;
   wrongAttemptsText.textContent = wrongAttempts;
   memoryScoreText.textContent = currentScore;
-  memoryTimerText.textContent = timeLeft;
+  updateTimerDisplay();
 
   // Build and show the deck face-up for memorization time
   buildDeck();
@@ -223,22 +223,37 @@ function hideAllCards() {
 }
 
 // Timer countdown while the real round is active
+// Important change here:
+// once the timer goes below 0, the player can still keep playing,
+// but the score loses 1 point every second in overtime
 function startRoundTimer() {
   gameTimer = setInterval(function() {
     timeLeft--;
-    memoryTimerText.textContent = timeLeft;
 
-    // Stop the round if the timer reaches zero
-    if (timeLeft <= 0) {
-      clearInterval(gameTimer);
-      timeLeft = 0;
-      memoryTimerText.textContent = timeLeft;
-      lockBoard = true;
-      canFlipCards = false;
-      showMemoryMessage('Time is up. Your score was not saved. Start a new game to try again.');
-      disableAllUnmatchedCards();
+    if (timeLeft < 0) {
+      overtimeSeconds++;
+      currentScore--;
+      memoryScoreText.textContent = currentScore;
+    }
+
+    updateTimerDisplay();
+
+    // Only update the message once overtime actually starts
+    if (timeLeft === -1) {
+      showMemoryMessage('Time limit passed. You can still finish, but you lose 1 point every extra second.');
     }
   }, 1000);
+}
+
+// This keeps the timer text readable on the page
+// Positive time shows normal seconds left
+// Negative time shows overtime clearly
+function updateTimerDisplay() {
+  if (timeLeft >= 0) {
+    memoryTimerText.textContent = timeLeft;
+  } else {
+    memoryTimerText.textContent = `OT ${Math.abs(timeLeft)}`;
+  }
 }
 
 // Main click logic for every card
@@ -279,7 +294,7 @@ function handleCardClick(event) {
 
     matchCountText.textContent = matchesFound;
     memoryScoreText.textContent = currentScore;
-    showMemoryMessage('Nice, that is a match. +10 points.');
+    showMatchMessage();
 
     resetTurnState();
     renderBoard(false);
@@ -295,7 +310,7 @@ function handleCardClick(event) {
 
     wrongAttemptsText.textContent = wrongAttempts;
     memoryScoreText.textContent = currentScore;
-    showMemoryMessage('Not a match. -5 points. Try to remember those spots.');
+    showMismatchMessage();
 
     // Give the player a short moment to see the wrong pair before hiding them again
     setTimeout(function() {
@@ -307,17 +322,37 @@ function handleCardClick(event) {
   }
 }
 
+// Separate helpers so overtime messages are still clear
+function showMatchMessage() {
+  if (timeLeft < 0) {
+    showMemoryMessage(`Nice, that is a match. +10 points. Overtime penalty is still active.`);
+  } else {
+    showMemoryMessage('Nice, that is a match. +10 points.');
+  }
+}
+
+function showMismatchMessage() {
+  if (timeLeft < 0) {
+    showMemoryMessage('Not a match. -5 points, and overtime is still subtracting 1 point each second.');
+  } else {
+    showMemoryMessage('Not a match. -5 points. Try to remember those spots.');
+  }
+}
+
 // Final steps when the player wins the round
 function finishGame() {
   clearInterval(gameTimer);
   canFlipCards = false;
 
-  // Kept in case I extend the timer logic later
-  finishPenalty = Math.max(0, 0 - timeLeft);
-  currentScore -= finishPenalty;
+  // At this point, overtime penalty has already been applied live each second,
+  // so there is nothing extra to subtract here
   memoryScoreText.textContent = currentScore;
 
-  showMemoryMessage(`You matched every card. Final score: ${currentScore}.`);
+  if (overtimeSeconds > 0) {
+    showMemoryMessage(`You matched every card. Final score: ${currentScore}. Overtime used: ${overtimeSeconds} seconds.`);
+  } else {
+    showMemoryMessage(`You matched every card. Final score: ${currentScore}.`);
+  }
 
   // Check achievement progress before asking for leaderboard name
   unlockAchievements({
@@ -349,7 +384,8 @@ function saveScorePrompt() {
     name: playerName,
     score: currentScore,
     pairs: totalPairs,
-    wrongAttempts: wrongAttempts
+    wrongAttempts: wrongAttempts,
+    overtimeSeconds: overtimeSeconds
   });
 
   renderLeaderboard();
@@ -412,7 +448,13 @@ function renderLeaderboard() {
 
     const details = document.createElement('div');
     details.className = 'leaderboard-details';
-    details.textContent = `${entry.pairs} pairs | ${entry.wrongAttempts} misses`;
+
+    // Show a little more info now that overtime can happen
+    if (entry.overtimeSeconds && entry.overtimeSeconds > 0) {
+      details.textContent = `${entry.pairs} pairs | ${entry.wrongAttempts} misses | OT ${entry.overtimeSeconds}s`;
+    } else {
+      details.textContent = `${entry.pairs} pairs | ${entry.wrongAttempts} misses`;
+    }
 
     row.appendChild(rank);
     row.appendChild(name);
@@ -441,7 +483,11 @@ function unlockAchievements(stats) {
   renderAchievements();
 
   if (unlockedSomethingNew) {
-    showMemoryMessage(`You matched every card. Final score: ${currentScore}. New achievement unlocked.`);
+    if (overtimeSeconds > 0) {
+      showMemoryMessage(`You matched every card. Final score: ${currentScore}. New achievement unlocked. Overtime used: ${overtimeSeconds} seconds.`);
+    } else {
+      showMemoryMessage(`You matched every card. Final score: ${currentScore}. New achievement unlocked.`);
+    }
   }
 }
 
@@ -512,15 +558,6 @@ function resetTurnState() {
   firstCard = null;
   secondCard = null;
   lockBoard = false;
-}
-
-// Used when the round ends by timer
-function disableAllUnmatchedCards() {
-  const allCardButtons = document.querySelectorAll('.memory-card');
-
-  allCardButtons.forEach(function(button) {
-    button.disabled = true;
-  });
 }
 
 // Reusable helper for memory game messages
