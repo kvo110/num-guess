@@ -1,3 +1,4 @@
+
 // Basic card choices for the memory game
 const memorySymbols = [
   'Lion', 'Zebra', 'Tiger', 'Panda', 'Koala', 'Whale',
@@ -10,8 +11,11 @@ const pairSelect = document.getElementById('pairSelect');
 const startMemoryGameButton = document.getElementById('startMemoryGame');
 const memoryTimerText = document.getElementById('memoryTimer');
 const matchCountText = document.getElementById('matchCount');
+const memoryScoreText = document.getElementById('memoryScore');
+const wrongAttemptsText = document.getElementById('wrongAttempts');
 const memoryMessage = document.getElementById('memoryMessage');
 const memoryBoard = document.getElementById('memoryBoard');
+const leaderboardList = document.getElementById('leaderboardList');
 
 // State values that change while the game runs
 let memoryCards = [];
@@ -19,14 +23,21 @@ let firstCard = null;
 let secondCard = null;
 let lockBoard = false;
 let matchesFound = 0;
+let wrongAttempts = 0;
 let totalPairs = 8;
 let timeLeft = 0;
 let memorizationSeconds = 3;
 let gameTimer = null;
 let canFlipCards = false;
+let currentScore = 0;
+let roundTimeLimit = 0;
+let finishPenalty = 0;
 
 // Start button runs the whole setup
 startMemoryGameButton.addEventListener('click', startMemoryGame);
+
+// Show saved scores right when the page loads
+renderLeaderboard();
 
 // This starts a brand new memory round
 function startMemoryGame() {
@@ -35,20 +46,27 @@ function startMemoryGame() {
   totalPairs = Number(pairSelect.value);
   memorizationSeconds = Number(difficultySelect.value);
   matchesFound = 0;
+  wrongAttempts = 0;
+  currentScore = 0;
+  finishPenalty = 0;
   firstCard = null;
   secondCard = null;
   lockBoard = false;
   canFlipCards = false;
 
-  timeLeft = getGameTime(totalPairs);
+  roundTimeLimit = getGameTime(totalPairs);
+  timeLeft = roundTimeLimit;
+
   matchCountText.textContent = matchesFound;
+  wrongAttemptsText.textContent = wrongAttempts;
+  memoryScoreText.textContent = currentScore;
   memoryTimerText.textContent = timeLeft;
 
   buildDeck();
   renderBoard(true);
   showMemoryMessage(`Memorize the cards. They will hide in ${memorizationSeconds} seconds.`);
 
-  setTimeout(() => {
+  setTimeout(function() {
     hideAllCards();
     canFlipCards = true;
     startRoundTimer();
@@ -158,9 +176,11 @@ function startRoundTimer() {
 
     if (timeLeft <= 0) {
       clearInterval(gameTimer);
+      timeLeft = 0;
+      memoryTimerText.textContent = timeLeft;
       lockBoard = true;
       canFlipCards = false;
-      showMemoryMessage('Time is up. Start a new game to try again.');
+      showMemoryMessage('Time is up. Your score was not saved. Start a new game to try again.');
       disableAllUnmatchedCards();
     }
   }, 1000);
@@ -194,19 +214,25 @@ function handleCardClick(event) {
     firstCard.matched = true;
     secondCard.matched = true;
     matchesFound++;
+    currentScore += 10;
+
     matchCountText.textContent = matchesFound;
-    showMemoryMessage('Nice, that is a match.');
+    memoryScoreText.textContent = currentScore;
+    showMemoryMessage('Nice, that is a match. +10 points.');
 
     resetTurnState();
     renderBoard(false);
 
     if (matchesFound === totalPairs) {
-      clearInterval(gameTimer);
-      canFlipCards = false;
-      showMemoryMessage('You matched every card. Round complete.');
+      finishGame();
     }
   } else {
-    showMemoryMessage('Not a match. Try to remember those spots.');
+    wrongAttempts++;
+    currentScore -= 5;
+
+    wrongAttemptsText.textContent = wrongAttempts;
+    memoryScoreText.textContent = currentScore;
+    showMemoryMessage('Not a match. -5 points. Try to remember those spots.');
 
     setTimeout(function() {
       firstCard.revealed = false;
@@ -214,6 +240,113 @@ function handleCardClick(event) {
       resetTurnState();
       renderBoard(false);
     }, 900);
+  }
+}
+
+// Runs the ending steps for a successful round
+function finishGame() {
+  clearInterval(gameTimer);
+  canFlipCards = false;
+
+  // This keeps the scoring rule in place if you ever let time run below target in a future version
+  finishPenalty = Math.max(0, 0 - timeLeft);
+  currentScore -= finishPenalty;
+  memoryScoreText.textContent = currentScore;
+
+  showMemoryMessage(`You matched every card. Final score: ${currentScore}.`);
+
+  saveScorePrompt();
+}
+
+// Ask for a player name and save the result
+function saveScorePrompt() {
+  let playerName = prompt('Enter your name for the leaderboard:', '');
+
+  if (playerName === null) {
+    playerName = 'Anonymous';
+  }
+
+  playerName = playerName.trim();
+
+  if (playerName === '') {
+    playerName = 'Anonymous';
+  }
+
+  saveLeaderboardScore({
+    name: playerName,
+    score: currentScore,
+    pairs: totalPairs,
+    wrongAttempts: wrongAttempts
+  });
+
+  renderLeaderboard();
+}
+
+// Save top 5 scores in localStorage
+function saveLeaderboardScore(entry) {
+  const savedScores = getLeaderboardScores();
+
+  savedScores.push(entry);
+  savedScores.sort(function(a, b) {
+    return b.score - a.score;
+  });
+
+  const topFive = savedScores.slice(0, 5);
+  localStorage.setItem('memoryLeaderboard', JSON.stringify(topFive));
+}
+
+// Read scores from localStorage
+function getLeaderboardScores() {
+  const rawScores = localStorage.getItem('memoryLeaderboard');
+
+  if (!rawScores) {
+    return [];
+  }
+
+  try {
+    return JSON.parse(rawScores);
+  } catch (error) {
+    return [];
+  }
+}
+
+// Draw leaderboard onto the page
+function renderLeaderboard() {
+  const savedScores = getLeaderboardScores();
+  leaderboardList.innerHTML = '';
+
+  if (savedScores.length === 0) {
+    leaderboardList.innerHTML = '<div class="leaderboard-empty">No scores saved yet.</div>';
+    return;
+  }
+
+  for (let i = 0; i < savedScores.length; i++) {
+    const entry = savedScores[i];
+    const row = document.createElement('div');
+    row.className = 'leaderboard-row';
+
+    const rank = document.createElement('div');
+    rank.className = 'leaderboard-rank';
+    rank.textContent = `#${i + 1}`;
+
+    const name = document.createElement('div');
+    name.className = 'leaderboard-name';
+    name.textContent = entry.name;
+
+    const score = document.createElement('div');
+    score.className = 'leaderboard-score';
+    score.textContent = `${entry.score} pts`;
+
+    const details = document.createElement('div');
+    details.className = 'leaderboard-details';
+    details.textContent = `${entry.pairs} pairs | ${entry.wrongAttempts} misses`;
+
+    row.appendChild(rank);
+    row.appendChild(name);
+    row.appendChild(score);
+    row.appendChild(details);
+
+    leaderboardList.appendChild(row);
   }
 }
 

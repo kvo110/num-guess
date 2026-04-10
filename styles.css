@@ -169,7 +169,8 @@ h1 {
   cursor: pointer;
 }
 
-.memory-status-row {
+.memory-status-row,
+.memory-score-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
@@ -204,11 +205,52 @@ h1 {
   cursor: default;
 }
 
+.leaderboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.leaderboard-row {
+  display: grid;
+  grid-template-columns: 70px 1fr 120px 120px;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid #edd7e7;
+  border-radius: 14px;
+  padding: 14px 16px;
+  background: #fffafb;
+}
+
+.leaderboard-rank {
+  font-weight: bold;
+  color: #7b2cbf;
+}
+
+.leaderboard-name {
+  font-weight: bold;
+}
+
+.leaderboard-score,
+.leaderboard-details {
+  text-align: right;
+  color: #6d4c5b;
+}
+
+.leaderboard-empty {
+  border: 1px solid #edd7e7;
+  border-radius: 14px;
+  padding: 16px;
+  background: #fffafb;
+  color: #6d4c5b;
+}
+
 @media (max-width: 700px) {
 
   .top-bar,
   .stats,
-  .memory-status-row {
+  .memory-status-row,
+  .memory-score-row {
     grid-template-columns: 1fr;
   }
 
@@ -224,5 +266,15 @@ h1 {
   .guess-row button,
   .memory-controls button {
     padding: 16px;
+  }
+
+  .leaderboard-row {
+    grid-template-columns: 1fr;
+    text-align: left;
+  }
+
+  .leaderboard-score,
+  .leaderboard-details {
+    text-align: left;
   }
 }

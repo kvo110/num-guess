@@ -95,11 +95,34 @@
         </div>
       </div>
 
+      <div class="memory-score-row">
+        <div class="info-box">
+          <span class="label">Current Score</span>
+          <span id="memoryScore">0</span>
+        </div>
+
+        <div class="info-box">
+          <span class="label">Wrong Attempts</span>
+          <span id="wrongAttempts">0</span>
+        </div>
+      </div>
+
       <div id="memoryMessage" class="message">
         Start a memory game to begin.
       </div>
 
       <div id="memoryBoard" class="memory-board"></div>
+    </section>
+
+    <section class="game-panel leaderboard-panel">
+      <h1>Leaderboard</h1>
+      <p class="intro">
+        Top 5 memory game scores saved in localStorage.
+      </p>
+
+      <div id="leaderboardList" class="leaderboard-list">
+        <div class="leaderboard-empty">No scores saved yet.</div>
+      </div>
     </section>
   </main>
 
