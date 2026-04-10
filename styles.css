@@ -2,8 +2,13 @@
 body {
   margin: 0;
   font-family: Arial, Helvetica, sans-serif;
-  background: #f8f4f8;
+  background:
+    radial-gradient(circle at top left, rgba(255, 214, 232, 0.55), transparent 28%),
+    radial-gradient(circle at top right, rgba(255, 192, 203, 0.28), transparent 22%),
+    linear-gradient(180deg, #fff7fb 0%, #fceef7 45%, #f8f4f8 100%);
   color: #2b1d24;
+  overflow-x: hidden;
+  position: relative;
 }
 
 /* Main wrapper that stacks all sections vertically */
@@ -15,6 +20,196 @@ body {
   gap: 28px;
   padding: 40px 20px;
   box-sizing: border-box;
+  position: relative;
+  z-index: 2;
+}
+
+/* Fixed layer that holds all petals behind the content */
+.petal-background {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* Base petal look */
+.petal {
+  position: absolute;
+  top: -12%;
+  width: 18px;
+  height: 12px;
+  background: linear-gradient(135deg, #ffd7e8, #ffc3da);
+  border-radius: 70% 30% 70% 30%;
+  opacity: 0.8;
+  box-shadow: 0 0 8px rgba(255, 182, 210, 0.28);
+  animation-name: fallPetal, swayPetal;
+  animation-timing-function: linear, ease-in-out;
+  animation-iteration-count: infinite, infinite;
+}
+
+/* Small shine in each petal so it feels softer */
+.petal::after {
+  content: '';
+  position: absolute;
+  width: 40%;
+  height: 35%;
+  top: 18%;
+  left: 18%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+/* Each petal gets a different starting point speed and size */
+.petal-1 {
+  left: 4%;
+  animation-duration: 13s, 4s;
+  animation-delay: 0s, 0s;
+  transform: rotate(12deg);
+}
+
+.petal-2 {
+  left: 12%;
+  width: 16px;
+  height: 11px;
+  animation-duration: 16s, 5s;
+  animation-delay: 2s, 1s;
+  transform: rotate(-8deg);
+}
+
+.petal-3 {
+  left: 21%;
+  width: 20px;
+  height: 13px;
+  animation-duration: 14s, 4.5s;
+  animation-delay: 1s, 0.5s;
+  transform: rotate(18deg);
+}
+
+.petal-4 {
+  left: 31%;
+  width: 14px;
+  height: 10px;
+  animation-duration: 18s, 6s;
+  animation-delay: 4s, 1.5s;
+  transform: rotate(-16deg);
+}
+
+.petal-5 {
+  left: 40%;
+  width: 19px;
+  height: 12px;
+  animation-duration: 15s, 5s;
+  animation-delay: 0.5s, 0s;
+  transform: rotate(10deg);
+}
+
+.petal-6 {
+  left: 49%;
+  width: 17px;
+  height: 12px;
+  animation-duration: 17s, 6.2s;
+  animation-delay: 3s, 2s;
+  transform: rotate(-20deg);
+}
+
+.petal-7 {
+  left: 58%;
+  width: 15px;
+  height: 10px;
+  animation-duration: 12s, 4s;
+  animation-delay: 1.5s, 0.7s;
+  transform: rotate(14deg);
+}
+
+.petal-8 {
+  left: 67%;
+  width: 21px;
+  height: 14px;
+  animation-duration: 19s, 6.5s;
+  animation-delay: 5s, 1.2s;
+  transform: rotate(-10deg);
+}
+
+.petal-9 {
+  left: 75%;
+  width: 16px;
+  height: 11px;
+  animation-duration: 14.5s, 4.8s;
+  animation-delay: 2.5s, 1s;
+  transform: rotate(22deg);
+}
+
+.petal-10 {
+  left: 84%;
+  width: 18px;
+  height: 12px;
+  animation-duration: 16.5s, 5.7s;
+  animation-delay: 6s, 2.3s;
+  transform: rotate(-14deg);
+}
+
+.petal-11 {
+  left: 91%;
+  width: 15px;
+  height: 10px;
+  animation-duration: 13.5s, 4.3s;
+  animation-delay: 3.5s, 1.4s;
+  transform: rotate(8deg);
+}
+
+.petal-12 {
+  left: 97%;
+  width: 20px;
+  height: 13px;
+  animation-duration: 18.5s, 6.1s;
+  animation-delay: 7s, 2.8s;
+  transform: rotate(-18deg);
+}
+
+/* Vertical falling motion */
+@keyframes fallPetal {
+  0% {
+    top: -12%;
+    opacity: 0;
+  }
+
+  8% {
+    opacity: 0.85;
+  }
+
+  100% {
+    top: 110%;
+    opacity: 0.2;
+  }
+}
+
+/* Side-to-side drifting and rotation */
+@keyframes swayPetal {
+  0% {
+    margin-left: 0;
+    transform: translateX(0) rotate(0deg);
+  }
+
+  25% {
+    margin-left: 18px;
+    transform: translateX(10px) rotate(55deg);
+  }
+
+  50% {
+    margin-left: -14px;
+    transform: translateX(-8px) rotate(115deg);
+  }
+
+  75% {
+    margin-left: 12px;
+    transform: translateX(7px) rotate(185deg);
+  }
+
+  100% {
+    margin-left: -10px;
+    transform: translateX(-6px) rotate(260deg);
+  }
 }
 
 /* Shared card layout used by each game section */
@@ -22,12 +217,13 @@ body {
   width: 100%;
   max-width: 900px;
   margin: 0 auto;
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.92);
   border: 1px solid #ecd7e5;
   border-radius: 18px;
   padding: 30px;
   box-sizing: border-box;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(4px);
 }
 
 /* Main headings for each section */
@@ -217,6 +413,13 @@ h1 {
   font-weight: bold;
   cursor: pointer;
   box-shadow: 0 8px 18px rgba(156, 39, 176, 0.15);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+/* Small hover touch so the cards feel more alive */
+.memory-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 20px rgba(156, 39, 176, 0.2);
 }
 
 /* Style for a revealed or permanently matched card */
@@ -353,5 +556,11 @@ h1 {
   .leaderboard-score,
   .leaderboard-details {
     text-align: left;
+  }
+
+  /* Slightly smaller petals on mobile so they do not feel too busy */
+  .petal {
+    width: 14px;
+    height: 10px;
   }
 }
