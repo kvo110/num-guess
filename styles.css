@@ -11,6 +11,20 @@ body {
   position: relative;
 }
 
+/* Extra ambient glow layer behind everything */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(194, 24, 122, 0.15), transparent 40%),
+    radial-gradient(circle at 80% 30%, rgba(156, 39, 176, 0.12), transparent 40%),
+    radial-gradient(circle at 50% 80%, rgba(233, 30, 99, 0.10), transparent 50%);
+  z-index: 0;
+  pointer-events: none;
+  animation: glowPulse 6s ease-in-out infinite alternate;
+}
+
 /* Main wrapper that stacks all sections vertically */
 .page {
   min-height: 100vh;
@@ -42,7 +56,9 @@ body {
   background: linear-gradient(135deg, #ffd7e8, #ffc3da);
   border-radius: 70% 30% 70% 30%;
   opacity: 0.8;
-  box-shadow: 0 0 8px rgba(255, 182, 210, 0.28);
+  box-shadow:
+    0 0 10px rgba(255, 182, 210, 0.5),
+    0 0 20px rgba(255, 182, 210, 0.3);
   animation-name: fallPetal, swayPetal;
   animation-timing-function: linear, ease-in-out;
   animation-iteration-count: infinite, infinite;
@@ -212,6 +228,17 @@ body {
   }
 }
 
+/* Soft pulsing ambient glow */
+@keyframes glowPulse {
+  from {
+    opacity: 0.6;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
 /* Shared card layout used by each game section */
 .game-panel {
   width: 100%;
@@ -222,8 +249,32 @@ body {
   border-radius: 18px;
   padding: 30px;
   box-sizing: border-box;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
   backdrop-filter: blur(4px);
+  position: relative;
+  box-shadow:
+    0 10px 25px rgba(0, 0, 0, 0.05),
+    0 0 18px rgba(194, 24, 122, 0.15);
+  transition: all 0.25s ease;
+}
+
+/* Soft glowing border effect around each panel */
+.game-panel::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #e91e63, #9c27b0, #ff80ab);
+  opacity: 0.25;
+  z-index: -1;
+  filter: blur(10px);
+}
+
+/* Panels feel more lifted and noticeable */
+.game-panel:hover {
+  box-shadow:
+    0 20px 45px rgba(194, 24, 122, 0.18),
+    0 0 25px rgba(194, 24, 122, 0.25);
+  transform: translateY(-3px);
 }
 
 /* Main headings for each section */
@@ -264,6 +315,12 @@ h1 {
   font-weight: bold;
 }
 
+/* Base button polish so buttons glow a little even before hover */
+button {
+  transition: all 0.2s ease;
+  box-shadow: 0 0 8px rgba(194, 24, 122, 0.25);
+}
+
 /* Sound toggle button in the number game */
 .sound-box button {
   border: none;
@@ -301,6 +358,31 @@ h1 {
   font-size: 1rem;
   font-weight: bold;
   cursor: pointer;
+}
+
+/* Buttons now have a more obvious glow */
+button:hover {
+  box-shadow:
+    0 0 18px rgba(194, 24, 122, 0.6),
+    0 0 30px rgba(156, 39, 176, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Click still feels responsive */
+button:active {
+  transform: scale(0.96);
+  box-shadow:
+    0 0 10px rgba(194, 24, 122, 0.4);
+}
+
+/* Input glow is now easier to see */
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #c2187a;
+  box-shadow:
+    0 0 14px rgba(194, 24, 122, 0.45),
+    0 0 25px rgba(156, 39, 176, 0.25);
 }
 
 /* Reusable message box for both games */
@@ -416,10 +498,12 @@ h1 {
   transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
-/* Small hover touch so the cards feel more alive */
+/* Memory cards feel more interactive now */
 .memory-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 20px rgba(156, 39, 176, 0.2);
+  box-shadow:
+    0 0 20px rgba(156, 39, 176, 0.6),
+    0 0 35px rgba(233, 30, 99, 0.35);
+  transform: translateY(-3px) scale(1.02);
 }
 
 /* Style for a revealed or permanently matched card */
@@ -428,6 +512,9 @@ h1 {
   background: #fff4fa;
   color: #7a2052;
   border: 1px solid #efcfe1;
+  box-shadow:
+    0 0 15px rgba(194, 24, 122, 0.35),
+    0 0 25px rgba(194, 24, 122, 0.25);
 }
 
 /* Disabled cards should not feel clickable anymore */
@@ -452,6 +539,14 @@ h1 {
   border-radius: 14px;
   padding: 14px 16px;
   background: #fffafb;
+  transition: box-shadow 0.2s ease;
+}
+
+/* Leaderboard hover is now noticeable */
+.leaderboard-row:hover {
+  box-shadow:
+    0 0 14px rgba(194, 24, 122, 0.35),
+    0 0 24px rgba(194, 24, 122, 0.2);
 }
 
 /* Ranking number on the left */
