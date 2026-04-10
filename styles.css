@@ -1,3 +1,4 @@
+/* Basic page setup so the whole site has one shared look */
 body {
   margin: 0;
   font-family: Arial, Helvetica, sans-serif;
@@ -5,6 +6,7 @@ body {
   color: #2b1d24;
 }
 
+/* Main wrapper that stacks all sections vertically */
 .page {
   min-height: 100vh;
   display: flex;
@@ -15,6 +17,7 @@ body {
   box-sizing: border-box;
 }
 
+/* Shared card layout used by each game section */
 .game-panel {
   width: 100%;
   max-width: 900px;
@@ -27,18 +30,21 @@ body {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
 }
 
+/* Main headings for each section */
 h1 {
   margin-top: 0;
   margin-bottom: 10px;
   color: #7b2cbf;
 }
 
+/* Intro paragraph under each section heading */
 .intro {
   margin-top: 0;
   margin-bottom: 24px;
   font-size: 1.05rem;
 }
 
+/* Top row in the guessing game for clock and sound */
 .top-bar {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -46,6 +52,7 @@ h1 {
   margin-bottom: 20px;
 }
 
+/* Shared style for little information boxes */
 .info-box {
   display: flex;
   justify-content: space-between;
@@ -56,10 +63,12 @@ h1 {
   background: #fffafb;
 }
 
+/* Small bold labels inside each info box */
 .label {
   font-weight: bold;
 }
 
+/* Sound toggle button in the number game */
 .sound-box button {
   border: none;
   border-radius: 999px;
@@ -70,12 +79,14 @@ h1 {
   cursor: pointer;
 }
 
+/* Row for the number input and guess button */
 .guess-row {
   display: flex;
   gap: 12px;
   margin-bottom: 20px;
 }
 
+/* Number input styling */
 .guess-row input {
   flex: 1;
   padding: 16px;
@@ -84,6 +95,7 @@ h1 {
   font-size: 1rem;
 }
 
+/* Shared pink-purple button look */
 .guess-row button {
   border: none;
   border-radius: 999px;
@@ -95,6 +107,7 @@ h1 {
   cursor: pointer;
 }
 
+/* Reusable message box for both games */
 .message {
   min-height: 30px;
   border: 1px solid #f0d9e7;
@@ -106,12 +119,14 @@ h1 {
   font-weight: bold;
 }
 
+/* Three-card stats row for the number game */
 .stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
 }
 
+/* Individual stat card style */
 .stat-card {
   text-align: center;
   border: 1px solid #edd7e7;
@@ -120,18 +135,21 @@ h1 {
   background: #fffdfd;
 }
 
+/* Label inside each stat card */
 .stat-label {
   display: block;
   margin-bottom: 8px;
   color: #6d4c5b;
 }
 
+/* Big stat number styling */
 .stat-card span:last-child {
   font-size: 1.6rem;
   font-weight: bold;
   color: #c2187a;
 }
 
+/* Controls row for the memory game */
 .memory-controls {
   display: grid;
   grid-template-columns: 1fr 1fr auto;
@@ -140,16 +158,19 @@ h1 {
   margin-bottom: 20px;
 }
 
+/* Each label + select box group */
 .control-group {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
+/* Labels for selects */
 .control-group label {
   font-weight: bold;
 }
 
+/* Select styling so it matches the rest of the page */
 .control-group select {
   padding: 14px;
   border: 1px solid #edd7e7;
@@ -158,6 +179,7 @@ h1 {
   background: #ffffff;
 }
 
+/* Start button for memory game */
 .memory-controls button {
   border: none;
   border-radius: 999px;
@@ -169,6 +191,7 @@ h1 {
   cursor: pointer;
 }
 
+/* Shared two-column rows for timer score and attempts */
 .memory-status-row,
 .memory-score-row {
   display: grid;
@@ -177,11 +200,13 @@ h1 {
   margin-bottom: 20px;
 }
 
+/* Board container that JavaScript turns into a grid */
 .memory-board {
   display: grid;
   gap: 12px;
 }
 
+/* Default card look before it is flipped */
 .memory-card {
   height: 90px;
   border: none;
@@ -194,6 +219,7 @@ h1 {
   box-shadow: 0 8px 18px rgba(156, 39, 176, 0.15);
 }
 
+/* Style for a revealed or permanently matched card */
 .memory-card.revealed,
 .memory-card.matched {
   background: #fff4fa;
@@ -201,16 +227,19 @@ h1 {
   border: 1px solid #efcfe1;
 }
 
+/* Disabled cards should not feel clickable anymore */
 .memory-card:disabled {
   cursor: default;
 }
 
+/* Leaderboard rows stack vertically */
 .leaderboard-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
+/* One saved leaderboard entry */
 .leaderboard-row {
   display: grid;
   grid-template-columns: 70px 1fr 120px 120px;
@@ -222,21 +251,25 @@ h1 {
   background: #fffafb;
 }
 
+/* Ranking number on the left */
 .leaderboard-rank {
   font-weight: bold;
   color: #7b2cbf;
 }
 
+/* Player name */
 .leaderboard-name {
   font-weight: bold;
 }
 
+/* Score and extra details aligned on the right */
 .leaderboard-score,
 .leaderboard-details {
   text-align: right;
   color: #6d4c5b;
 }
 
+/* Message shown before any score exists */
 .leaderboard-empty {
   border: 1px solid #edd7e7;
   border-radius: 14px;
@@ -245,12 +278,56 @@ h1 {
   color: #6d4c5b;
 }
 
+/* Achievement cards are arranged in a grid */
+.achievement-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+/* Base achievement card look */
+.achievement-card {
+  border: 1px solid #edd7e7;
+  border-radius: 14px;
+  padding: 16px;
+  background: #fffafb;
+}
+
+/* Slightly different look when a badge has been earned */
+.achievement-card.unlocked {
+  background: #fff2fb;
+  border-color: #d8a7c7;
+  box-shadow: 0 8px 18px rgba(194, 24, 122, 0.08);
+}
+
+/* Badge title */
+.achievement-title {
+  font-weight: bold;
+  color: #7b2cbf;
+  margin-bottom: 8px;
+}
+
+/* Small explanation under the badge title */
+.achievement-desc {
+  color: #6d4c5b;
+  margin-bottom: 8px;
+}
+
+/* Locked or unlocked text */
+.achievement-status {
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: #c2187a;
+}
+
+/* Mobile layout so everything stacks cleaner on small screens */
 @media (max-width: 700px) {
 
   .top-bar,
   .stats,
   .memory-status-row,
-  .memory-score-row {
+  .memory-score-row,
+  .achievement-list {
     grid-template-columns: 1fr;
   }
 

@@ -4,18 +4,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Main page title shown in the browser tab -->
   <title>Homework 4 | Number Guessing Game and Memory Matching Game</title>
+
+  <!-- External stylesheet for both games -->
   <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
   <main class="page">
+    <!-- First section: Part A number guessing game -->
     <section class="game-panel">
       <h1>Number Guessing Game</h1>
       <p class="intro">
         Guess a number between 1 and 100.
       </p>
 
+      <!-- Top info row for the clock and sound control -->
       <div class="top-bar">
         <div class="info-box">
           <span class="label">Clock</span>
@@ -28,15 +34,18 @@
         </div>
       </div>
 
+      <!-- Input area where the player types a guess -->
       <div class="guess-row">
         <input type="number" id="guessInput" min="1" max="100" placeholder="Enter your guess..." />
         <button id="guessButton" type="button">Guess</button>
       </div>
 
+      <!-- Live message area for high low correct and error feedback -->
       <div id="message" class="message">
         Take a guess to begin.
       </div>
 
+      <!-- Small stat boxes for tracking round progress -->
       <div class="stats">
         <div class="stat-card">
           <span class="stat-label">Guesses Left</span>
@@ -55,12 +64,14 @@
       </div>
     </section>
 
+    <!-- Second section: Part B memory matching game -->
     <section class="game-panel memory-panel">
       <h1>Memory Matching Game</h1>
       <p class="intro">
         Pick a difficulty and number of pairs, then try to match all cards before time runs out.
       </p>
 
+      <!-- Controls for difficulty, pair count, and game start -->
       <div class="memory-controls">
         <div class="control-group">
           <label for="difficultySelect">Difficulty:</label>
@@ -83,6 +94,7 @@
         <button id="startMemoryGame" type="button">Start Game</button>
       </div>
 
+      <!-- Timer and total matches found -->
       <div class="memory-status-row">
         <div class="info-box">
           <span class="label">Time Left</span>
@@ -95,6 +107,7 @@
         </div>
       </div>
 
+      <!-- Score tracking for the memory game -->
       <div class="memory-score-row">
         <div class="info-box">
           <span class="label">Current Score</span>
@@ -107,13 +120,16 @@
         </div>
       </div>
 
+      <!-- Status updates for memorize match fail or win messages -->
       <div id="memoryMessage" class="message">
         Start a memory game to begin.
       </div>
 
+      <!-- Cards will be inserted here through JavaScript -->
       <div id="memoryBoard" class="memory-board"></div>
     </section>
 
+    <!-- Leaderboard area for saved top scores -->
     <section class="game-panel leaderboard-panel">
       <h1>Leaderboard</h1>
       <p class="intro">
@@ -124,9 +140,22 @@
         <div class="leaderboard-empty">No scores saved yet.</div>
       </div>
     </section>
+
+    <!-- Extra feature area for unlocked achievements -->
+    <section class="game-panel achievement-panel">
+      <h1>Achievements</h1>
+      <p class="intro">
+        Extra feature: earn badges by finishing special memory game goals.
+      </p>
+
+      <div id="achievementList" class="achievement-list"></div>
+    </section>
   </main>
 
+  <!-- Separate JavaScript file for the first game -->
   <script src="number-game.js"></script>
+
+  <!-- Separate JavaScript file for the memory game -->
   <script src="memory-game.js"></script>
 </body>
 

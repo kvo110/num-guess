@@ -1,11 +1,48 @@
-
-// Basic card choices for the memory game
+// These are the possible symbols used for the memory cards
+// I kept them as text labels so the game stays simple and easy to read
 const memorySymbols = [
   'Lion', 'Zebra', 'Tiger', 'Panda', 'Koala', 'Whale',
   'Shark', 'Eagle', 'Fox', 'Bear', 'Wolf', 'Frog'
 ];
 
-// Page elements for the memory game
+// Extra feature badge rules
+// Each badge has a key title description and a condition to unlock it
+const achievementRules = [
+  {
+    key: 'firstWin',
+    title: 'First Win',
+    description: 'Finish one memory game.',
+    check: function(stats) {
+      return stats.completedGame;
+    }
+  },
+  {
+    key: 'perfectMemory',
+    title: 'Perfect Memory',
+    description: 'Finish a game with 0 wrong attempts.',
+    check: function(stats) {
+      return stats.completedGame && stats.wrongAttempts === 0;
+    }
+  },
+  {
+    key: 'speedRunner',
+    title: 'Speed Runner',
+    description: 'Finish with at least half of the timer left.',
+    check: function(stats) {
+      return stats.completedGame && stats.timeLeft >= Math.floor(stats.roundTimeLimit / 2);
+    }
+  },
+  {
+    key: 'cardMaster',
+    title: 'Card Master',
+    description: 'Finish the 12-pair game mode.',
+    check: function(stats) {
+      return stats.completedGame && stats.totalPairs === 12;
+    }
+  }
+];
+
+// Grab all memory game page elements once here
 const difficultySelect = document.getElementById('difficultySelect');
 const pairSelect = document.getElementById('pairSelect');
 const startMemoryGameButton = document.getElementById('startMemoryGame');
@@ -16,8 +53,9 @@ const wrongAttemptsText = document.getElementById('wrongAttempts');
 const memoryMessage = document.getElementById('memoryMessage');
 const memoryBoard = document.getElementById('memoryBoard');
 const leaderboardList = document.getElementById('leaderboardList');
+const achievementList = document.getElementById('achievementList');
 
-// State values that change while the game runs
+// These values change while the player is in a round
 let memoryCards = [];
 let firstCard = null;
 let secondCard = null;
@@ -33,18 +71,23 @@ let currentScore = 0;
 let roundTimeLimit = 0;
 let finishPenalty = 0;
 
-// Start button runs the whole setup
+// Start game button begins a new round
 startMemoryGameButton.addEventListener('click', startMemoryGame);
 
-// Show saved scores right when the page loads
+// Load saved leaderboard and achievement data right away
 renderLeaderboard();
+renderAchievements();
 
-// This starts a brand new memory round
+// Start a brand new memory game round
 function startMemoryGame() {
+  // Clear any old timer first so rounds do not overlap
   clearInterval(gameTimer);
 
+  // Read current settings from the dropdowns
   totalPairs = Number(pairSelect.value);
   memorizationSeconds = Number(difficultySelect.value);
+
+  // Reset all round values
   matchesFound = 0;
   wrongAttempts = 0;
   currentScore = 0;
@@ -54,18 +97,22 @@ function startMemoryGame() {
   lockBoard = false;
   canFlipCards = false;
 
+  // Set the round time based on pair count
   roundTimeLimit = getGameTime(totalPairs);
   timeLeft = roundTimeLimit;
 
+  // Update everything shown on the screen
   matchCountText.textContent = matchesFound;
   wrongAttemptsText.textContent = wrongAttempts;
   memoryScoreText.textContent = currentScore;
   memoryTimerText.textContent = timeLeft;
 
+  // Build and show the deck face-up for memorization time
   buildDeck();
   renderBoard(true);
   showMemoryMessage(`Memorize the cards. They will hide in ${memorizationSeconds} seconds.`);
 
+  // After the chosen memorize time, hide all cards and start the real round
   setTimeout(function() {
     hideAllCards();
     canFlipCards = true;
@@ -74,7 +121,7 @@ function startMemoryGame() {
   }, memorizationSeconds * 1000);
 }
 
-// Time depends on how many pairs the player picked
+// Time limit changes depending on how many pairs were picked
 function getGameTime(pairCount) {
   if (pairCount === 8) {
     return 120;
@@ -87,7 +134,7 @@ function getGameTime(pairCount) {
   return 180;
 }
 
-// This builds two of each symbol, then mixes them
+// Build the deck by duplicating each chosen symbol
 function buildDeck() {
   const chosenSymbols = memorySymbols.slice(0, totalPairs);
   const doubledCards = [];
@@ -97,6 +144,7 @@ function buildDeck() {
     doubledCards.push(chosenSymbols[i]);
   }
 
+  // Shuffle the cards and then assign card ids
   memoryCards = shuffleArray(doubledCards).map(function(symbol, index) {
     return {
       id: index + 1,
@@ -107,7 +155,7 @@ function buildDeck() {
   });
 }
 
-// Simple shuffle so the board is different every round
+// Basic shuffle so the cards are random each round
 function shuffleArray(array) {
   const copy = [...array];
 
@@ -121,10 +169,11 @@ function shuffleArray(array) {
   return copy;
 }
 
-// Draw the current card state onto the page
+// Draw the board from scratch based on current card data
 function renderBoard(showFaceUp) {
   memoryBoard.innerHTML = '';
 
+  // Change number of columns depending on total deck size
   if (totalPairs === 8) {
     memoryBoard.style.gridTemplateColumns = 'repeat(4, 1fr)';
   } else if (totalPairs === 10) {
@@ -133,6 +182,7 @@ function renderBoard(showFaceUp) {
     memoryBoard.style.gridTemplateColumns = 'repeat(6, 1fr)';
   }
 
+  // Create one button per card
   for (let i = 0; i < memoryCards.length; i++) {
     const card = memoryCards[i];
     const cardButton = document.createElement('button');
@@ -141,25 +191,29 @@ function renderBoard(showFaceUp) {
     cardButton.className = 'memory-card';
     cardButton.dataset.id = card.id;
 
+    // Show symbol during memorize phase or when card is revealed/matched
     const shouldShowFace = showFaceUp || card.revealed || card.matched;
 
     if (shouldShowFace) {
       cardButton.textContent = card.symbol;
       cardButton.classList.add(card.matched ? 'matched' : 'revealed');
     } else {
+      // Hidden cards just show their id number
       cardButton.textContent = card.id;
     }
 
+    // A matched card should no longer be clickable
     if (card.matched) {
       cardButton.disabled = true;
     }
 
+    // Each card gets its own click event
     cardButton.addEventListener('click', handleCardClick);
     memoryBoard.appendChild(cardButton);
   }
 }
 
-// After memorization time is over, cards show numbers instead
+// Turn all cards face-down after memorization time ends
 function hideAllCards() {
   for (let i = 0; i < memoryCards.length; i++) {
     memoryCards[i].revealed = false;
@@ -168,12 +222,13 @@ function hideAllCards() {
   renderBoard(false);
 }
 
-// Countdown for the round
+// Timer countdown while the real round is active
 function startRoundTimer() {
   gameTimer = setInterval(function() {
     timeLeft--;
     memoryTimerText.textContent = timeLeft;
 
+    // Stop the round if the timer reaches zero
     if (timeLeft <= 0) {
       clearInterval(gameTimer);
       timeLeft = 0;
@@ -186,8 +241,9 @@ function startRoundTimer() {
   }, 1000);
 }
 
-// Handles one click on a card
+// Main click logic for every card
 function handleCardClick(event) {
+  // Ignore clicks if the board is locked or the round is not active
   if (!canFlipCards || lockBoard) {
     return;
   }
@@ -195,21 +251,26 @@ function handleCardClick(event) {
   const clickedId = Number(event.target.dataset.id);
   const clickedCard = findCardById(clickedId);
 
+  // Ignore invalid clicks repeated clicks or already matched cards
   if (!clickedCard || clickedCard.revealed || clickedCard.matched) {
     return;
   }
 
+  // Reveal the chosen card and redraw the board
   clickedCard.revealed = true;
   renderBoard(false);
 
+  // First pick of the turn
   if (!firstCard) {
     firstCard = clickedCard;
     return;
   }
 
+  // Second pick of the turn
   secondCard = clickedCard;
   lockBoard = true;
 
+  // Matching branch
   if (firstCard.symbol === secondCard.symbol) {
     firstCard.matched = true;
     secondCard.matched = true;
@@ -223,10 +284,12 @@ function handleCardClick(event) {
     resetTurnState();
     renderBoard(false);
 
+    // If all pairs are found the round is over
     if (matchesFound === totalPairs) {
       finishGame();
     }
   } else {
+    // Wrong match branch
     wrongAttempts++;
     currentScore -= 5;
 
@@ -234,6 +297,7 @@ function handleCardClick(event) {
     memoryScoreText.textContent = currentScore;
     showMemoryMessage('Not a match. -5 points. Try to remember those spots.');
 
+    // Give the player a short moment to see the wrong pair before hiding them again
     setTimeout(function() {
       firstCard.revealed = false;
       secondCard.revealed = false;
@@ -243,22 +307,31 @@ function handleCardClick(event) {
   }
 }
 
-// Runs the ending steps for a successful round
+// Final steps when the player wins the round
 function finishGame() {
   clearInterval(gameTimer);
   canFlipCards = false;
 
-  // This keeps the scoring rule in place if you ever let time run below target in a future version
+  // Kept in case I extend the timer logic later
   finishPenalty = Math.max(0, 0 - timeLeft);
   currentScore -= finishPenalty;
   memoryScoreText.textContent = currentScore;
 
   showMemoryMessage(`You matched every card. Final score: ${currentScore}.`);
 
+  // Check achievement progress before asking for leaderboard name
+  unlockAchievements({
+    completedGame: true,
+    wrongAttempts: wrongAttempts,
+    timeLeft: timeLeft,
+    roundTimeLimit: roundTimeLimit,
+    totalPairs: totalPairs
+  });
+
   saveScorePrompt();
 }
 
-// Ask for a player name and save the result
+// Ask the player for a name before saving leaderboard data
 function saveScorePrompt() {
   let playerName = prompt('Enter your name for the leaderboard:', '');
 
@@ -282,7 +355,7 @@ function saveScorePrompt() {
   renderLeaderboard();
 }
 
-// Save top 5 scores in localStorage
+// Save score list in localStorage and keep only top five
 function saveLeaderboardScore(entry) {
   const savedScores = getLeaderboardScores();
 
@@ -295,7 +368,7 @@ function saveLeaderboardScore(entry) {
   localStorage.setItem('memoryLeaderboard', JSON.stringify(topFive));
 }
 
-// Read scores from localStorage
+// Read saved leaderboard data
 function getLeaderboardScores() {
   const rawScores = localStorage.getItem('memoryLeaderboard');
 
@@ -310,7 +383,7 @@ function getLeaderboardScores() {
   }
 }
 
-// Draw leaderboard onto the page
+// Draw leaderboard entries onto the page
 function renderLeaderboard() {
   const savedScores = getLeaderboardScores();
   leaderboardList.innerHTML = '';
@@ -350,7 +423,80 @@ function renderLeaderboard() {
   }
 }
 
-// Find the card object from the id saved on the button
+// Check whether any achievement rules were earned this round
+function unlockAchievements(stats) {
+  const savedAchievements = getUnlockedAchievements();
+  let unlockedSomethingNew = false;
+
+  for (let i = 0; i < achievementRules.length; i++) {
+    const rule = achievementRules[i];
+
+    if (rule.check(stats) && !savedAchievements.includes(rule.key)) {
+      savedAchievements.push(rule.key);
+      unlockedSomethingNew = true;
+    }
+  }
+
+  localStorage.setItem('memoryAchievements', JSON.stringify(savedAchievements));
+  renderAchievements();
+
+  if (unlockedSomethingNew) {
+    showMemoryMessage(`You matched every card. Final score: ${currentScore}. New achievement unlocked.`);
+  }
+}
+
+// Read saved achievement keys from localStorage
+function getUnlockedAchievements() {
+  const rawAchievements = localStorage.getItem('memoryAchievements');
+
+  if (!rawAchievements) {
+    return [];
+  }
+
+  try {
+    return JSON.parse(rawAchievements);
+  } catch (error) {
+    return [];
+  }
+}
+
+// Draw the achievement cards and show whether they are locked or unlocked
+function renderAchievements() {
+  const unlockedKeys = getUnlockedAchievements();
+  achievementList.innerHTML = '';
+
+  for (let i = 0; i < achievementRules.length; i++) {
+    const achievement = achievementRules[i];
+    const card = document.createElement('div');
+    const isUnlocked = unlockedKeys.includes(achievement.key);
+
+    card.className = 'achievement-card';
+
+    if (isUnlocked) {
+      card.classList.add('unlocked');
+    }
+
+    const title = document.createElement('div');
+    title.className = 'achievement-title';
+    title.textContent = achievement.title;
+
+    const description = document.createElement('div');
+    description.className = 'achievement-desc';
+    description.textContent = achievement.description;
+
+    const status = document.createElement('div');
+    status.className = 'achievement-status';
+    status.textContent = isUnlocked ? 'Unlocked' : 'Locked';
+
+    card.appendChild(title);
+    card.appendChild(description);
+    card.appendChild(status);
+
+    achievementList.appendChild(card);
+  }
+}
+
+// Find a card object by matching its id
 function findCardById(id) {
   for (let i = 0; i < memoryCards.length; i++) {
     if (memoryCards[i].id === id) {
@@ -361,14 +507,14 @@ function findCardById(id) {
   return null;
 }
 
-// Reset only the current turn values
+// Reset the turn after a match or mismatch is handled
 function resetTurnState() {
   firstCard = null;
   secondCard = null;
   lockBoard = false;
 }
 
-// If time runs out, unmatched cards should no longer be clickable
+// Used when the round ends by timer
 function disableAllUnmatchedCards() {
   const allCardButtons = document.querySelectorAll('.memory-card');
 
@@ -377,7 +523,7 @@ function disableAllUnmatchedCards() {
   });
 }
 
-// Message helper so the code is easier to read
+// Reusable helper for memory game messages
 function showMemoryMessage(text) {
   memoryMessage.textContent = text;
 }
